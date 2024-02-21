@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const app = express();
-const PORT = 0;
+const PORT = 3000;
 const { Pool } = require('pg');
 
 const pool = new Pool({
