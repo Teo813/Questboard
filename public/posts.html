@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Posts</title>
+        <link rel="stylesheet" href="styles.css">
+      </head>
+<body>
+    <div class="logo-container">
+        <a href="/">
+          <img src="logo.png" alt="Logo" class="logo">
+        </a>
+      </div>
+      <div class="navbar">
+        <div id="navbar-placeholder"></div>
+      </div>
+  <h1>Posts</h1>
+  <div class="background">
+  <div id="posts"></div>
+  </div>
+  <script>
+            document.addEventListener('DOMContentLoaded', function() {
+      // Load the navbar
+      fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navbar-placeholder').innerHTML = data;
+          
+          if (sessionStorage.getItem("isLoggedIn") === "true") {
+            document.getElementById('logoutLink').style.display = 'inline';
+          }
+        });
+        });
+
+    async function fetchPosts() {
+      const response = await fetch('/posts');
+      const posts = await response.json();
+
+      const postsContainer = document.getElementById('posts');
+      posts.forEach(post => {
+  const postElement = document.createElement('div');
+  postElement.classList.add('post-container'); // Add the container class
+  postElement.innerHTML = `
+  <div class="tweet-header">
+    <img src="${post.characterimageurl}" alt="${post.charactername}'s profile picture" class="tweet-profile-picture">
+    <h2 class="tweet-username">${post.charactername}</h2>
+    <small class="tweet-time">Posted at: ${new Date(post.createdat).toLocaleString()}</small>
+  </div>
+  <p class="tweet-text">${post.text}</p>
+  <p class="tweet-tags">Tags: ${post.tags}</p>
+`;
+  postsContainer.appendChild(postElement);
+});
+    }
+    fetchPosts();
+  </script>
+</body>
+</html>

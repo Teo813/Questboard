@@ -1,4 +1,8 @@
 require('dotenv').config();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -10,6 +14,10 @@ app.use(cookieParser());
 const { Pool } = require('pg');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/profilePics', express.static('profilePics'));
+app.use('/postImages', express.static('postImages'));
+
+
 const pool = new Pool({
   user: 'llmysts',
   host: 'localhost',
@@ -24,6 +32,75 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false, maxAge: 3600000 } // For HTTPS use secure: true
 }));
+//Image Handling
+// Set storage engine
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'profilePics/'); // Set the destination directory
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // Use the field name, current timestamp, and original extension for the filename
+  }
+});
+
+// Storage configuration for profile pictures
+const profilePicStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const dir = 'profilePics/';
+    if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+// Storage configuration for post images
+const postImageStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const dir = 'postImages/';
+    if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+// Initialize multer with different storage configurations
+const uploadProfilePic = multer({
+  storage: profilePicStorage,
+  limits: { fileSize: 40 * 1024 * 1024 }, // Limit file size to 40MB
+  fileFilter: function(req, file, cb) {
+  checkFileType(file, cb);
+} });
+const uploadPostImage = multer({
+  storage: postImageStorage,
+  limits: { fileSize: 40 * 1024 * 1024 }, // Limit file size to 40MB
+  fileFilter: function(req, file, cb) {
+    checkFileType(file, cb);
+} });
+
+// Function to check file type
+function checkFileType(file, cb) {
+  // Allowed file extensions
+  const filetypes = /jpeg|jpg|png|gif/;
+  // Check extension
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  // Check mimetype
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb('Error: Images Only!'); // Reject file if it doesn't meet the criteria
+  }
+}
+
 //User Registration
 app.post('/register', (req, res) => {
     // In a real app, you would save the user info to a database
@@ -49,7 +126,7 @@ app.post('/register', (req, res) => {
 //User Login
 app.post('/login', (req, res) => {
   const { username, password} = req.body;
-const selectQuery = 'SELECT * FROM users WHERE username = $1';
+  const selectQuery = 'SELECT * FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($1)';
 pool.query(selectQuery, [username], (error, results) => {
   if (error) {
     console.error('Database error:', error);
@@ -92,18 +169,19 @@ app.post('/logout', (req, res) => {
   });
 });
 //Create Character
-app.post('/create-character', async (req, res) => {
-
+app.post('/create-character', uploadProfilePic.single('characterimage'), async (req, res) => {
   if (!req.session.userId) {
-    return res.status(403).send({ status: 'error', message: 'You must be logged in to create a post.' });
+    return res.status(403).send({ status: 'error', message: 'You must be logged in to create a character.' });
   }
   const { charactername, characterdescription } = req.body;
-  const userid = req.session.userId; // Assuming you store userid in session
+  const userid = req.session.userId;
+  console.log(req.file);
+  const characterImageUrl = req.file ? req.file.path : null; // Path to the uploaded file
 
   try {
     const newCharacter = await pool.query(
-      `INSERT INTO characters (userid, charactername, characterdescription) VALUES ($1, $2, $3) RETURNING *`,
-      [userid, charactername, characterdescription]
+      `INSERT INTO characters (userid, charactername, characterdescription, characterimageurl) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [userid, charactername, characterdescription, characterImageUrl]
     );
     res.json({ message: 'Character created successfully!', character: newCharacter.rows[0] });
   } catch (err) {
@@ -113,19 +191,18 @@ app.post('/create-character', async (req, res) => {
 });
 
 //New Posts
-app.post('/submit-post', (req, res) => {
-  // First, check if the user is logged in
+app.post('/submit-post', uploadPostImage.single('postImage'), (req, res) => {
   if (!req.session.userId) {
     return res.status(403).send({ status: 'error', message: 'You must be logged in to create a post.' });
   }
 
-  // Extracting form data
   const { characterid, text, tags } = req.body;
   const userid = req.session.userId; // Using the logged-in user's ID from the session
+  const imageUrl = req.file ? req.file.path : null; // Path to the uploaded image or null
 
-  // Inserting post data into the database
-  const insertQuery = 'INSERT INTO posts(userid, characterid, text, tags) VALUES($1, $2, $3, $4) RETURNING *';
-  pool.query(insertQuery, [userid, characterid, text, tags], (error, results) => {
+  // Inserting post data into the database including the image URL
+  const insertQuery = 'INSERT INTO posts(userid, characterid, text, tags, image_url) VALUES($1, $2, $3, $4, $5) RETURNING *';
+  pool.query(insertQuery, [userid, characterid, text, tags, imageUrl], (error, results) => {
     if (error) {
       console.error('Database error:', error);
       return res.status(500).send({ status: 'error', message: 'Database error' });
@@ -134,16 +211,28 @@ app.post('/submit-post', (req, res) => {
     res.status(201).send({ status: 'success', message: 'Post created successfully!', post: results.rows[0] });
   });
 });
+
 //Show all posts
 app.get('/posts', async (req, res) => {
   try {
+    // Updated query to include p.image_url and removed the trailing comma before FROM
     const query = `
-      SELECT p.postid, p.text, p.tags, p.createdat AT TIME ZONE 'EST' as createdat, c.charactername
+      SELECT p.postid, p.text, p.tags, p.image_url, p.createdat AT TIME ZONE 'EST' as createdat, c.charactername, c.characterimageurl
       FROM posts p
       INNER JOIN characters c ON p.characterid = c.characterid
       ORDER BY p.createdat DESC
     `;
     const { rows } = await pool.query(query);
+    rows.forEach(row => {
+      // Update the path for character images and post images based on your server's static files configuration
+      if (row.characterimageurl) {
+        row.characterimageurl = `/${row.characterimageurl}`;
+      }
+      // Conditionally prefix the image URL if it exists
+      if (row.image_url) {
+        row.image_url = `/${row.image_url}`;
+      }
+    });
     res.json(rows);
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -152,22 +241,147 @@ app.get('/posts', async (req, res) => {
 });
 
 
-app.get('/', (req, res) => {
-  console.log(req.session.userId);
-  if (req.session.userId) {
-    // User is logged in
-    res.send("/index.html");
-  } else {
-    // User is not logged in
-    res.send(`
-      <h1>Login Required</h1>
-      <p>Please <a href="/login.html">login</a> to view this page.</p>
-    `);
+//Finding User Characters for post creation
+app.get('/get-user-characters', async (req, res) => {
+  console.log("Index.js looking for characters")
+  try {
+    const userId = req.session.userId;
+    const query = 'SELECT characterid, charactername FROM characters WHERE userid = $1';
+    const { rows } = await pool.query(query, [userId]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
   }
 });
-app.get('/page', (req, res) => {
+//Getting user characters for displaying
+app.get('/get-user-characters-full', async (req, res) => {
+  console.log("Index.js looking for characters");
+  try {
+    // Ensure the user is logged in before fetching characters
+    if (!req.session.userId) {
+      return res.status(403).send({ status: 'error', message: 'You must be logged in to view characters.' });
+    }
 
+    const userId = req.session.userId;
+    // Updated query to include characterdescription and characterimageurl
+    const query = 'SELECT characterid, charactername, characterdescription, characterimageurl FROM characters WHERE userid = $1';
+    const { rows } = await pool.query(query, [userId]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
 });
+//checking login status
+app.get('/check-session', (req, res) => {
+  if (req.session.userId) {
+    // Assuming you have a users table with columns for username and profilePicPath
+    const selectQuery = 'SELECT username FROM users WHERE id = $1';
+
+    pool.query(selectQuery, [req.session.userId], (error, results) => {
+      if (error) {
+        console.error('Database error:', error);
+        return res.status(500).send({ status: 'error', message: 'Database error' });
+      }
+      if (results.rows.length > 0) {
+        const user = results.rows[0];
+        res.json({
+          isLoggedIn: true,
+          username: user.username,
+          //profilePicPath: user.profilepicpath // Ensure this path is correctly served by your static files middleware
+        });
+      } else {
+        // User ID in session but no corresponding user in the database
+        res.json({ isLoggedIn: false });
+      }
+    });
+  } else {
+    // No user ID in session, user is not logged in
+    res.json({ isLoggedIn: false });
+  }
+});
+//Delete Characters
+app.delete('/delete-character/:characterId', async (req, res) => {
+  if (!req.session.userId) {
+      return res.status(403).send({ status: 'error', message: 'You must be logged in to delete a character.' });
+  }
+
+  const { characterId } = req.params;
+  const userId = req.session.userId;
+
+  try {
+      // Optional: Check if the character belongs to the logged-in user
+      const ownershipQuery = 'SELECT userid FROM characters WHERE characterid = $1';
+      const ownershipResult = await pool.query(ownershipQuery, [characterId]);
+
+      if (ownershipResult.rows.length > 0 && ownershipResult.rows[0].userid === userId) {
+          const deleteQuery = 'DELETE FROM characters WHERE characterid = $1 AND userid = $2';
+          await pool.query(deleteQuery, [characterId, userId]);
+          res.json({ status: 'success', message: 'Character deleted successfully' });
+      } else {
+          res.status(404).send({ status: 'error', message: 'Character not found or you do not have permission to delete this character.' });
+      }
+  } catch (err) {
+      console.error(err);
+      res.status(500).send({ status: 'error', message: 'Server error' });
+  }
+});
+app.put('/update-character/:characterId', uploadProfilePic.single('characterimage'), async (req, res) => {
+  if (!req.session.userId) {
+      return res.status(403).send({ status: 'error', message: 'You must be logged in to update a character.' });
+  }
+
+  const { characterId } = req.params;
+  const userId = req.session.userId;
+  const charactername = req.body.charactername;
+  const characterdescription = req.body.characterdescription;
+  const characterImageUrl = req.file ? req.file.path : null; // New image file path if an image was uploaded
+
+  try {
+      // Check if the character belongs to the logged-in user
+      const ownershipQuery = 'SELECT userid FROM characters WHERE characterid = $1';
+      const ownershipResult = await pool.query(ownershipQuery, [characterId]);
+
+      if (ownershipResult.rows.length > 0 && ownershipResult.rows[0].userid === userId) {
+          let updateQuery, queryParams;
+          if (characterImageUrl) {
+              // If a new image was uploaded, include it in the update
+              updateQuery = `
+                  UPDATE characters
+                  SET charactername = $1, characterdescription = $2, characterimageurl = $3
+                  WHERE characterid = $4 AND userid = $5
+                  RETURNING *;
+              `;
+              queryParams = [charactername, characterdescription, characterImageUrl, characterId, userId];
+          } else {
+              // If no new image was uploaded, only update the name and description
+              updateQuery = `
+                  UPDATE characters
+                  SET charactername = $1, characterdescription = $2
+                  WHERE characterid = $3 AND userid = $4
+                  RETURNING *;
+              `;
+              queryParams = [charactername, characterdescription, characterId, userId];
+          }
+
+          const { rows } = await pool.query(updateQuery, queryParams);
+
+          if (rows.length > 0) {
+              res.json({ status: 'success', message: 'Character updated successfully', character: rows[0] });
+          } else {
+              res.status(404).send({ status: 'error', message: 'Character not found or you do not have permission to update this character.' });
+          }
+      } else {
+          res.status(404).send({ status: 'error', message: 'Character not found or you do not have permission to update this character.' });
+      }
+  } catch (err) {
+      console.error(err);
+      res.status(500).send({ status: 'error', message: 'Server error' });
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

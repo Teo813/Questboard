@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character List</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Include CSS or Bootstrap for styling -->
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="center-container">
+        <a href="/newCharacter.html" class="button-link">New Character</a>
+    </div>
+    <div id="characterContainer">
+        <!-- Character cards will be appended here -->
+    </div>
+    <!-- Edit Character Modal -->
+<div id="editCharacterModal" style="display:none;">
+    <div>
+        <h2>Edit Character</h2>
+        <form id="editCharacterForm">
+            <input type="hidden" id="editCharacterId">
+            <div>
+                <label for="editCharacterName">Name:</label>
+                <input type="text" id="editCharacterName" name="charactername" required>
+            </div>
+            <div>
+                <label for="editCharacterDescription">Description:</label>
+                <textarea id="editCharacterDescription" name="characterdescription" required></textarea>
+            </div>
+            <div>
+                <label for="editCharacterImage">Image:</label>
+                <input type="file" id="editCharacterImage" name="characterimage">
+            </div>
+            <div>
+                <button type="submit">Update Character</button>
+                <button type="button" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+    <script src="characters.js"></script>
+    <script src="loadComponents.js"></script>
+    <script src="userAuthUI.js"></script>
+</body>
+</html>

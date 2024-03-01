@@ -1,0 +1,268 @@
+/* styles.css */
+  body {
+    background-color: beige;
+  }
+  .post-container {
+    border: 2px solid #8B4513; /* Darker outline for contrast */
+    border-radius: 10px; /* Rounded corners */
+    background-color: #d2c87e; /* Beige background */
+    margin: 10px auto; /* Space between posts and centering */
+    padding: 15px; /* Space inside the box */
+    max-width: 80%; /* Max width of the box, adjust as needed */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: Adds a subtle shadow for depth */
+  }
+  .background{
+    background-image: url('/questboard.jpeg'); /* Sets the background image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-size: cover; /* Ensures the background covers the entire element */
+    /* Optional: Adjusts the position of your background image */
+    background-position: center center;
+  }
+  .post-title {
+    color: #8B4513; /* Darker text color for contrast */
+    margin-bottom: 10px; /* Space below the title */
+  }
+  
+  .post-text {
+    margin-bottom: 10px; /* Space below the text */
+  }
+  
+  .post-meta {
+    font-size: 0.85rem; /* Smaller text for meta information */
+    color: #6B8E23; /* Olive green color for a bit of flair */
+  }
+  
+  .post-tags {
+    font-size: 0.9rem; /* Slightly smaller than default text size */
+    color: #8B4513; /* Matching the border color */
+    font-style: italic; /* Italicize for emphasis */
+  }
+  .siteConstants{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .navbar {
+    display: flex;
+    width: auto;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .logo-container {
+    text-align: center; /* Center the content of the div */
+    margin: 0 auto; /* Apply automatic margins to center the div itself if necessary */
+    padding: 20px 0; /* Add some padding above and below the logo */
+  }
+  
+  .logo {
+    height: 200px; /* Your desired height */
+    width: auto; /* Maintain aspect ratio */
+  }
+  
+  .tweet-container {
+    border: 1px solid #e1e8ed; /* Lighter border for a softer look */
+    border-radius: 15px; /* Rounded corners for the tweet box */
+    background-color: #f5f8fa; /* Light background for a clean look */
+    margin: 10px auto; /* Space between tweets and centering */
+    padding: 10px; /* Space inside the tweet box */
+    max-width: 500px; /* Width similar to Twitter's layout */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  }
+  
+  .tweet-header {
+    display: flex; /* Aligns profile picture and user info side by side */
+    align-items: center; /* Centers items vertically */
+    margin-bottom: 10px; /* Space below the tweet header */
+  }
+  
+  .tweet-profile-picture {
+    width: 80px; /* Smaller profile picture */
+    height: 80px; /* Smaller profile picture */
+    object-fit: cover; /* Ensures the image covers the space */
+    border-radius: 50%; /* Circular profile picture */
+    margin-right: 10px; /* Space between the picture and the username */
+  }
+  
+  .tweet-username {
+    color: #ac1f1f; 
+    margin: 0; /* Removes default margin */
+  }
+  
+  .tweet-time {
+    font-size: 0.75rem; /* Smaller text for time */
+    color: #657786; /* Muted color for less emphasis */
+    margin-left: auto; /* Pushes time to the right */
+  }
+  
+  .tweet-text {
+    margin-bottom: 10px; /* Space below the tweet text */
+    color: #14171a; /* Darker color for readability */
+  }
+  
+  .tweet-tags {
+    font-size: 0.8rem; /* Slightly smaller font for tags */
+    color: #f2601d; /* Matching Twitter's brand color for links */
+    font-style: normal; /* Regular style for tags */
+  }
+  
+
+
+  /* Dropdown container */
+.dropdown {
+  display: inline-block;
+}
+
+/* Dropdown content */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Show the dropdown content on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+
+
+.user-auth-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background-color: #ffffff; /* Background color for the container */
+  border: 1px solid #e0e0e0; /* Light border for definition */
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user-profile img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%; /* Circular images */
+  margin-right: 5px;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 10px;
+  top:20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Updated shadow for consistency */
+  padding: 12px 16px;
+  z-index: 1;
+  border-radius: 4px; /* Rounded corners for the dropdown */
+}
+
+.user-profile:hover .dropdown-menu {
+  display: block; /* Show dropdown on hover */
+}
+
+.button-link {
+  background-color: #4CAF50; /* Green background */
+  border: none; /* No borders */
+  color: white; /* White text */
+  padding: 10px 20px; /* Some padding */
+  text-decoration: none; /* No underline */
+  width:fit-content;
+  font-size: 16px; /* Set font size */
+  margin: 2px; /* Add some space around the button */
+  cursor: pointer; /* Change mouse cursor to pointer on hover */
+  border-radius: 5px; /* Rounded corners */
+  display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.center-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically if needed */
+  text-align: center;
+}
+
+
+.button-link:hover {
+  background-color: #45a049; /* Darker shade of green on hover */
+}
+.form-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically if needed */
+}
+
+/* Container styling for vertical layout */
+#characterContainer {
+  display: flex;
+  flex-direction: column; /* Align children vertically */
+  align-items: center; /* Center children horizontally */
+}
+
+/* Individual card styling */
+#characterContainer div {
+  margin: 10px;
+  padding: 20px;
+  border: 1px solid #e7734f;
+  background-color: #d3ceab;
+  border-radius: 5px;
+  width: 80%; /* Adjust width as needed */
+}
+
+#characterContainer img {
+  width: 80px; /* Smaller profile picture */
+  height: 80px; /* Smaller profile picture */
+  object-fit: cover; /* Ensures the image covers the space */
+  border-radius: 50%; /* Circular profile picture */
+  margin-right: 10px; /* Space between the picture and the username */
+}
+
+#editCharacterModal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#editCharacterModal > div {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 50%;
+}
+
+/* Styles for images within posts */
+.post-image {
+  max-width: 70%; /* Ensures the image is never wider than the post container */
+  height: auto; /* Keeps the image aspect ratio intact */
+  display: block; /* Display block to avoid inline gaps */
+  margin: 0 auto; /* Center the image within the container */
+  border-radius: 10px; /* Optional: rounded corners for the images */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: slight shadow for depth */
+}

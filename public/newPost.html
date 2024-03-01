@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&D Forum</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <div class="siteConstants">
+    <h1>Create a New Post</h1>
+    <form id="postForm"> <!-- Removed the action and method attributes to handle submission via JS -->
+      <div>
+        <label for="character">Select Character:</label><br>
+        <select id="character" name="characterid" required>
+          <!-- Dynamic options should be loaded here -->
+        </select>
+      </div>
+      <div>
+        <label for="text">Post Content:</label><br>
+        <textarea id="text" name="text" rows="4" cols="50" required></textarea>
+      </div>
+      <div>
+        <label for="postImage">Select Image:</label><br>
+        <input type="file" id="postImage" name="postImage" accept="image/png, image/jpeg">
+      </div>
+      
+      <div>
+        <label for="tags">Tags (comma-separated):</label><br>
+        <input type="text" id="tags" name="tags">
+      </div>
+      <button type="submit">Submit Post</button>
+    </form>
+  </div>
+
+  <script src="loadComponents.js"></script>
+  <script src="userAuthUI.js"></script>
+  <script src="newPost.js"></script>
+</body>
+</html>

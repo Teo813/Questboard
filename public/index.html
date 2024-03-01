@@ -1,50 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>D&D Forum</title>
-  <link rel="stylesheet" href="styles.css">
-
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Posts</title>
+        <link rel="stylesheet" href="styles.css">
+      </head>
 <body>
-  <!-- Logo Image using WebP format -->
-<!-- Part of navbar.html -->
-
-<div class="logo-container">
-  <a href="/">
-    <img src="logo.png" alt="Logo" class="logo">
-  </a>
-</div>
-
-  <div class="navbar">
-    <div id="navbar-placeholder"></div> <!-- Placeholder for the navbar -->
-  </div>
-  <div class="siteConstants">
-  <a href="/">Go to Secure Page</a>
-  <!-- Logout Button -->
-  <button id="logoutButton">Logout</button>
-
-  <!-- Script to load the navbar -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-  fetch('navbar.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('navbar-placeholder').innerHTML = data;
-      
-      // Check if user is logged in
-      if (sessionStorage.getItem("isLoggedIn") === "true") {
-        // Show the logout link
-        document.getElementById('logoutLink').style.display = 'inline';
-      }
-    });
-});
-
-  </script>
-
-  <!-- Link to the external JS file for logout functionality -->
-  <script src="logout.js"></script>
-</div>
+<div id="header-container"></div>
+      <div class="center-container">
+        <a href="/newPost.html" class="button-link">New Post</a>
+    </div>
+    
+  <div id="posts"></div>
+  <a href="https://github.com/Teo813/Questboard/issues" style="display:block;color:#000000; text-decoration:none; text-align: center;">Feature Requests and Bugs</a>
+  <script src="loadComponents.js"></script>
+  <script src="userAuthUI.js"></script>
+  <script src="fetchPosts.js"></script>
 </body>
 </html>
